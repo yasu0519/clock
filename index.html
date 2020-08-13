@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8" />
+<title>clock</title>
+<meta name="Description" content="" />
+<meta name="Keywords"  content="" />
+<style>
+    * { margin:0; padding:0; }
+    body {
+        color: #efefef;
+        background-color: #333;
+        font-family: Avenir , "Open Sans" , "Helvetica Neue" , Helvetica , Arial , Verdana , Roboto , "游ゴシック" , "Yu Gothic" , "游ゴシック体" , "YuGothic" , "ヒラギノ角ゴ Pro W3" , "Hiragino Kaku Gothic Pro" , "Meiryo UI" , "メイリオ" , Meiryo , "ＭＳ Ｐゴシック" , "MS PGothic" , sans-serif;
+    line-height: 1.1;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    html, body, .flexCenter {
+        height: 100%;
+    }
+    .flexCenter {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .flexCenter * {
+        text-align: center;
+    }
+    .time { font-size: 8em; }
+    .date { font-size: 2em; }
+    #dayJP { font-size: 0.8em; }
+    /* time colon */
+    .colon {
+        animation: blinkcolon 1s infinite alternate;
+        vertical-align: 10%;
+    }
+    @keyframes blinkcolon {
+        from { opacity: 1.0; }
+        to { opacity: 0.1; }
+    }
+
+</style>
+</head>
+<body>
+    <div>
+        <div class="flexCenter">
+            <p class="time"><span id="hh">00</span><span class="colon">:</span><span id="mm">00</span><span class="colon">:</span><span id="ss">00</span></p>
+        </div>
+        <div class="flexCenter">
+            <p class="date"><span id="yyyymmdd">0000.00.00</span> (<span id="dayJP">--</span>)</p>
+        </div>
+    </div>
+</body>
+<script>
+    /*
+        extend Date object
+    */
+    (function() {
+        this.getDayJP = function(){
+            var arr = ["日","月","火","水","木","金","土"];
+            return arr[this.getDay()];
+        };
+        this.yyyymmdd = function() {
+            var arr = [ this.getFullYear(),
+                        this.getMonth() + 1,
+                        this.getDate() ];
+            return arr.join(".");
+        };
+        this.hhmmss = function() {
+            var arr = [ this.hh(),this.mm(),this.ss()];
+            return arr.join(":");
+        };
+        this.hh = function() {
+            return ("0"+this.getHours()).slice(-2);
+        };
+        this.mm = function() {
+            return ("0"+this.getMinutes()).slice(-2);
+        };
+        this.ss = function() {
+            return ("0"+this.getSeconds()).slice(-2);
+        };
+        this.add = function(ms) {
+            return new Date(this.getTime() + ms);
+        };
+        this.rgbArray = function() {
+            return [ this.getMinutes(), 100 - (this.getSeconds() + this.getDate()), 100 - this.getHours() ];
+        };
+        this.rgb = function() {
+            return "rgb("+this.rgbArray().join(",") + ")";
+        };
+        this.rgbReverse = function() {
+            var arr = this.rgbArray().map(function(e){ return 255 - e; });
+            return "rgb("+arr.join(",") + ")";
+        };
+    }).apply(Date.prototype);
+
+    /*
+        view datetime
+    */
+    function viewDateTime(){
+        let d = new Date();
+        document.getElementById("yyyymmdd").innerHTML = d.yyyymmdd();
+        document.getElementById("dayJP").innerHTML = d.getDayJP();
+        document.getElementById("hh").innerHTML = d.hh();
+        document.getElementById("mm").innerHTML = d.mm();
+        document.getElementById("ss").innerHTML = d.ss();
+        document.title = d.hhmmss();
+    }
+
+    /*
+        update datetime
+    */
+    window.onload = function(){
+        let delay_millisec = 1000;
+        setInterval("viewDateTime()", delay_millisec);
+    }
+</script>
+</html>
